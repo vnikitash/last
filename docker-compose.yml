@@ -1,0 +1,39 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    container_name: last-mysql-dev
+    environment:
+      MYSQL_DATABASE: vojowo
+      MYSQL_USER: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+  php:
+    image: webdevops/php:7.3
+    container_name: last-php-dev
+    environment:
+      PHP_UPLOAD_MAX_FILESIZE: 5000M
+      PHP_POST_MAX_SIZE: 5000M
+    volumes:
+      - "./:/laravel"
+      - "~/.composer:/root/.composer"
+    working_dir: '/laravel'
+  nginx:
+    depends_on:
+      - php
+    image: webdevops/nginx
+    container_name: last-nginx-dev
+    environment:
+      WEB_DOCUMENT_ROOT: /laravel/public
+      WEB_DOCUMENT_INDEX: index.php
+      WEB_PHP_SOCKET: php:9000
+    volumes:
+      - "./:/laravel"
+    ports:
+      - "8001:80"
+  redis:
+    image: redis:latest
+    container_name: last-redis-dev
+    ports:
+      - "6379:6379"
